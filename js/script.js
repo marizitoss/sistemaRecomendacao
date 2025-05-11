@@ -62,5 +62,4 @@ function criarCardLivro(livro) {
   return card;
 }
 
-// Busca inicial
 buscarLivros('literatura brasileira');
