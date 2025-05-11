@@ -1,12 +1,10 @@
 import {buscarLivrosAPI} from './amazonBooksApi.js';
 
-// Configura os event listeners
 document.getElementById('searchButton').addEventListener('click', buscarLivros);
 document.getElementById('searchInput').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') buscarLivros();
 });
 
-// Função principal
 async function buscarLivros() {
   const termo = document.getElementById('searchInput').value.trim();
   const carousel = document.getElementById('carousel');
@@ -28,7 +26,6 @@ async function buscarLivros() {
   }
 }
 
-// Função para exibir livros
 function exibirLivros(livros) {
   const carousel = document.getElementById('carousel');
   carousel.innerHTML = '';
@@ -43,7 +40,6 @@ function exibirLivros(livros) {
   });
 }
 
-// Função para criar card de livro
 function criarCardLivro(livro) {
   const card = document.createElement('div');
   card.className = 'book-card';
