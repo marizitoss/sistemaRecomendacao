@@ -1,0 +1,4 @@
+1;A Arte da Guerra 1;Sun Tzu;978-8520923445;Estratégia;39.90;50;500;Editora ABC;Um clássico sobre estratégias militares.
+2;A Arte da Guerra 2;Sun Tzu;978-8520923445;Estratégia;39.90;50;500;Editora ABC;Um clássico sobre estratégias militares.
+3;A Arte da Guerra 3;Sun Tzu;978-8520923445;Estratégia;39.90;50;500;Editora ABC;Um clássico sobre estratégias militares.
+4;A Arte da Guerra 4;Sun Tzu;978-8520923445;Estratégia;39.90;50;500;Editora ABC;Um clássico sobre estratégias militares.
