@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX 3  // Grau mínimo da árvore B (pode ser ajustado conforme necessário)
+#define MAX 3
 
 typedef struct Livro {
     int id;
@@ -18,7 +18,7 @@ typedef struct Livro {
 } Livro;
 
 typedef struct BTreeNode {
-    char chave[2 * MAX][200]; // titulo+autor
+    char chave[2 * MAX][200];
     Livro *livros[2 * MAX];
     struct BTreeNode *filhos[2 * MAX + 1];
     int n;
@@ -116,17 +116,16 @@ int carregarLivros(BTreeNode **raiz, const char *nomeArquivo) {
     }
 
     char linha[1024];
-    int maiorId = 0; // Variável para armazenar o maior ID
+    int maiorId = 0;
 
     while (fgets(linha, sizeof(linha), fp)) {
         Livro *livro = (Livro *)malloc(sizeof(Livro));
-        linha[strcspn(linha, "\r\n")] = '\0'; // Remover o \n do final
+        linha[strcspn(linha, "\r\n")] = '\0';
         sscanf(linha, "%d;%[^;];%[^;];%[^;];%[^;];%f;%d;%d;%[^;];%[^\n]",
                &livro->id, livro->titulo, livro->autor, livro->isbn, livro->genero,
                &livro->preco, &livro->quantidadeEstoque, &livro->anoPublicacao,
                livro->editora, livro->sinopse);
 
-        // Atualizar o maior ID encontrado
         if (livro->id > maiorId) {
             maiorId = livro->id;
         }
@@ -137,7 +136,7 @@ int carregarLivros(BTreeNode **raiz, const char *nomeArquivo) {
     }
 
     fclose(fp);
-    return maiorId; // Retorna o maior ID encontrado
+    return maiorId;
 }
 
 
@@ -148,7 +147,6 @@ void salvarLivros(BTreeNode *raiz, const char *nomeArquivo) {
         exit(EXIT_FAILURE);
     }
 
-    // Percorrer a árvore B e salvar todos os livros
     if (raiz != NULL) {
         for (int i = 0; i < raiz->n; i++) {
             Livro *livro = raiz->livros[i];
@@ -159,7 +157,7 @@ void salvarLivros(BTreeNode *raiz, const char *nomeArquivo) {
         }
 
         for (int i = 0; i <= raiz->n; i++) {
-            salvarLivros(raiz->filhos[i], nomeArquivo); // Recursivamente salvar os filhos
+            salvarLivros(raiz->filhos[i], nomeArquivo);
         }
     }
 
@@ -173,10 +171,8 @@ void criarEInserirLivro(BTreeNode **raiz, int *proximoId,
     int anoPublicacao, const char *editora,
     const char *sinopse) {
 
-    // Aloca memória para o novo livro
     Livro *novoLivro = (Livro *)malloc(sizeof(Livro));
 
-    // Preenche os dados do livro
     novoLivro->id = (*proximoId)++;
     strncpy(novoLivro->titulo, titulo, sizeof(novoLivro->titulo) - 1);
     strncpy(novoLivro->autor, autor, sizeof(novoLivro->autor) - 1);
@@ -188,7 +184,6 @@ void criarEInserirLivro(BTreeNode **raiz, int *proximoId,
     strncpy(novoLivro->editora, editora, sizeof(novoLivro->editora) - 1);
     strncpy(novoLivro->sinopse, sinopse, sizeof(novoLivro->sinopse) - 1);
 
-    // Garante terminação nula para as strings
     novoLivro->titulo[sizeof(novoLivro->titulo) - 1] = '\0';
     novoLivro->autor[sizeof(novoLivro->autor) - 1] = '\0';
     novoLivro->isbn[sizeof(novoLivro->isbn) - 1] = '\0';
@@ -196,19 +191,15 @@ void criarEInserirLivro(BTreeNode **raiz, int *proximoId,
     novoLivro->editora[sizeof(novoLivro->editora) - 1] = '\0';
     novoLivro->sinopse[sizeof(novoLivro->sinopse) - 1] = '\0';
 
-    // Cria a chave para a árvore B (título + autor)
     char chave[200];
     snprintf(chave, sizeof(chave), "%s-%s", novoLivro->titulo, novoLivro->autor);
 
-    // Insere o novo livro na árvore B
     inserir(raiz, chave, novoLivro);
 }
 
-// Função auxiliar para verificar se uma string contém outra (case insensitive)
 int contemSubstring(const char *str, const char *substr) {
     if (!str || !substr) return 0;
     
-    // Converter ambas para minúsculas para comparação case insensitive
     char strLower[256], substrLower[256];
     int i;
     for (i = 0; str[i] && i < 255; i++)
@@ -222,14 +213,11 @@ int contemSubstring(const char *str, const char *substr) {
     return strstr(strLower, substrLower) != NULL;
 }
 
-// Função para buscar livros por parte do título
 void buscarPorTitulo(BTreeNode *raiz, const char *parteTitulo, Livro **resultados, int *count, int *capacity) {
     if (!raiz) return;
     
     for (int i = 0; i < raiz->n; i++) {
-        // Verificar se o título atual contém a substring buscada
         if (contemSubstring(raiz->livros[i]->titulo, parteTitulo)) {
-            // Se o array de resultados está cheio, aumentar sua capacidade
             if (*count >= *capacity) {
                 *capacity *= 2;
                 resultados = (Livro **)realloc(resultados, *capacity * sizeof(Livro *));
@@ -242,21 +230,18 @@ void buscarPorTitulo(BTreeNode *raiz, const char *parteTitulo, Livro **resultado
             (*count)++;
         }
         
-        // Se não é folha, buscar nos filhos
         if (!raiz->folha) {
             buscarPorTitulo(raiz->filhos[i], parteTitulo, resultados, count, capacity);
         }
     }
     
-    // Buscar no último filho se não for folha
     if (!raiz->folha) {
         buscarPorTitulo(raiz->filhos[raiz->n], parteTitulo, resultados, count, capacity);
     }
 }
 
-// Função wrapper para facilitar o uso
 Livro **buscarLivrosPorTitulo(BTreeNode *raiz, const char *parteTitulo, int *quantidade) {
-    int capacity = 10; // Capacidade inicial
+    int capacity = 10;
     int count = 0;
     Livro **resultados = (Livro **)malloc(capacity * sizeof(Livro *));
     
@@ -276,7 +261,6 @@ int main(){
 
     int proximoId = 1;
 
-    // Carregar livros do arquivo e atualizar o próximo ID
     proximoId = carregarLivros(&raiz, "../backup_livros.txt") + 1;
 
     // Buscar livros que contenham "Guerra" no título
